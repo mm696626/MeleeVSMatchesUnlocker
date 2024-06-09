@@ -9,6 +9,7 @@
     * Link to JDK: https://www.oracle.com/java/technologies/downloads/
 * Open Melee and press the Start Button on the tool and be on the main menu and click back into the game
 * The script will take care of the rest!
+* The script will automatically close once the VS matches is reached
 
 
 ### Notes

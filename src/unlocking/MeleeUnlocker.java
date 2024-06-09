@@ -1,21 +1,23 @@
 package unlocking;
 
 import constants.ButtonConstants;
+import io.VSMatchStatSaver;
 
-import javax.swing.*;
 import java.awt.*;
 
-public class MeleeUnlocker extends JFrame {
+public class MeleeUnlocker {
 
 
     private int vsMatches;
     private int vsMatchesTarget;
+    private int foxVsMatches;
     private int[] buttonAssignments;
 
 
-    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int[] buttonAssignments) throws InterruptedException, AWTException {
+    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int foxVsMatches, int[] buttonAssignments) throws InterruptedException, AWTException {
         this.vsMatches = vsMatches;
         this.vsMatchesTarget = vsMatchesTarget;
+        this.foxVsMatches = foxVsMatches;
         this.buttonAssignments = buttonAssignments;
         unlock(buttonAssignments);
     }
@@ -23,8 +25,7 @@ public class MeleeUnlocker extends JFrame {
     private void unlock(int[] buttonAssignments) throws AWTException, InterruptedException {
         Robot robot = new Robot();
 
-        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and go to the main menu (hover over the first option in the menu) and click into your window within 2 seconds after pressing OK on this box");
-        Thread.sleep(2000);
+        simulateWaitOrLoadTime(2000);
 
         //press down to go to Melee mode
         pressKey(robot, 200, buttonAssignments[ButtonConstants.DOWN_ON_STICK]);
@@ -77,21 +78,24 @@ public class MeleeUnlocker extends JFrame {
             pressKey(robot, 200, buttonAssignments[ButtonConstants.START]);
         }
 
+        VSMatchStatSaver vsMatchStatSaver = new VSMatchStatSaver();
+        vsMatchStatSaver.saveVSMatchStatsToFile(vsMatches, foxVsMatches);
+
         //pause after done
         pressKey(robot, 200, buttonAssignments[ButtonConstants.PAUSE_HOTKEY]);
-        JOptionPane.showMessageDialog(this, "Unlock target reached! Pausing game. Press your resume hotkey to get your unlockable!");
-        setVisible(false);
+        simulateWaitOrLoadTime(1000);
+        System.exit(0); //close program after finished!
     }
 
     private void doVSMatch(Robot robot) throws InterruptedException {
         pressKey(robot, 200, buttonAssignments[ButtonConstants.START]);
 
         //simulate load time
-        Thread.sleep(2000);
+        simulateWaitOrLoadTime(2000);
         pickMushroomKingdom(robot);
 
         //simulate stage load and ready
-        Thread.sleep(5000);
+        simulateWaitOrLoadTime(5000);
 
         //dash to the left to SD
         pressKey(robot, 50, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
@@ -101,8 +105,17 @@ public class MeleeUnlocker extends JFrame {
         //wait for results screen to end and mash Start
         simulateWaitOrLoadTime(8500); //this could be shorter, but I wanted to guarantee the victory animation would finish
         pressKey(robot, 200, buttonAssignments[ButtonConstants.START]);
-        Thread.sleep(500);
+        simulateWaitOrLoadTime(500);
         pressKey(robot, 200, buttonAssignments[ButtonConstants.START]);
+
+        vsMatches++;
+        foxVsMatches++;
+
+        //edge case where if the number of Fox's VS matches is a multiple of 100 and is less than 300, you get a trophy, so this presses A to get past the prompt
+        if (foxVsMatches % 100 == 0 && foxVsMatches <= 300) {
+            simulateWaitOrLoadTime(1000);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
+        }
     }
 
     private void simulateWaitOrLoadTime(int duration) throws InterruptedException {

@@ -3,6 +3,7 @@ package ui;
 import constants.MeleeConstants;
 import io.KeyboardSettingSaver;
 import io.UnlockablesSaver;
+import io.VSMatchStatSaver;
 import unlocking.MeleeUnlocker;
 
 import javax.swing.*;
@@ -24,7 +25,9 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private ArrayList<JComboBox> keyboardButtonAssignments;
     private ArrayList<JCheckBox> earnedUnlockables;
     private int vsMatches;
+    private int foxVsMatches;
     private MeleeUnlocker meleeUnlocker;
+    private boolean vsMatchStatsLoaded = false;
 
 
     public MeleeVSMatchesUnlockerUI()
@@ -40,6 +43,12 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         File unlockables = new File("unlockables.txt");
         if (unlockables.exists()) {
             loadUnlockablesSettingsOnStartUp();
+        }
+
+        File vsMatchStats = new File("vsMatchStats.txt");
+        if (vsMatchStats.exists()) {
+            loadVSMatchStatsOnStartUp();
+            vsMatchStatsLoaded = true;
         }
     }
 
@@ -105,17 +114,22 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         if (e.getSource() == startUnlocking) {
 
             boolean isValidResponse = false;
-            while (!isValidResponse) {
-                String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
-                try {
-                    vsMatches = Integer.parseInt(response);
 
-                    if (vsMatches >= 0) {
-                        isValidResponse = true;
+            if (!vsMatchStatsLoaded) {
+                while (!isValidResponse) {
+                    String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
+                    String foxResponse = JOptionPane.showInputDialog(this, "How many VS matches have you done as Fox your save file?");
+                    try {
+                        vsMatches = Integer.parseInt(response);
+                        foxVsMatches = Integer.parseInt(foxResponse);
+
+                        if (vsMatches >= 0 && foxVsMatches >= 0) {
+                            isValidResponse = true;
+                        }
                     }
-                }
-                catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "That was not a valid response! Please try again!");
+                    catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "That was not a valid response! Please try again!");
+                    }
                 }
             }
 
@@ -128,15 +142,17 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
                 return;
             }
 
+            if (!vsMatchStatsLoaded) {
+                VSMatchStatSaver vsMatchStatSaver = new VSMatchStatSaver();
+                vsMatchStatSaver.saveVSMatchStatsToFile(vsMatches, foxVsMatches);
+            }
+
             try {
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments);
+                JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and go to the main menu (hover over the first option in the menu) and click into your window within 2 seconds after pressing OK on this box");
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, foxVsMatches, buttonAssignments);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-
-            meleeUnlocker.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            meleeUnlocker.pack();
-            meleeUnlocker.setVisible(true);
         }
     }
 
@@ -205,6 +221,26 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             earnedUnlockables.get(index).setSelected(isSelected);
             index++;
         }
+
+        inputStream.close();
+    }
+
+    private void loadVSMatchStatsOnStartUp() {
+        Scanner inputStream = null;
+        try {
+            inputStream = new Scanner(new FileInputStream("vsMatchStats.txt"));
+        } catch (FileNotFoundException e) {
+            return;
+        }
+
+        String vsMatchLine = inputStream.nextLine();
+        String foxVSMatchLine = inputStream.nextLine();
+
+        String vsMatchCount = vsMatchLine.split("=")[1];
+        vsMatches = Integer.parseInt(vsMatchCount);
+
+        String foxVsMatchCount = foxVSMatchLine.split("=")[1];
+        foxVsMatches = Integer.parseInt(foxVsMatchCount);
 
         inputStream.close();
     }
