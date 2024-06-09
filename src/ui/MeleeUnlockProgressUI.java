@@ -39,143 +39,106 @@ public class MeleeUnlockProgressUI extends JFrame implements KeyListener {
 
         //START
         for (int i=0; i<2; i++) {
-            robot.keyPress(KeyEvent.VK_ENTER);
-            Thread.sleep(1000);
-            robot.keyRelease(KeyEvent.VK_ENTER);
+            pressKey(robot, 1000, KeyEvent.VK_ENTER);
         }
 
         //simulate load time
-        Thread.sleep(3000);
+        simulateLoadTime(3000);
 
         //press down to go to Melee mode
-        robot.keyPress(KeyEvent.VK_G);
-        Thread.sleep(100);
-        robot.keyRelease(KeyEvent.VK_G);
-
-        Thread.sleep(100);
+        pressKey(robot, 100, KeyEvent.VK_G);
+        simulateLoadTime(100);
 
         //press A twice
         for (int i=0; i<2; i++) {
-            robot.keyPress(KeyEvent.VK_X);
-            Thread.sleep(100);
-            robot.keyRelease(KeyEvent.VK_X);
+            pressKey(robot, 100, KeyEvent.VK_X);
         }
 
         //simulate loading time
-        Thread.sleep(5000);
+        simulateLoadTime(5000);
 
         //Pick Fox
-        robot.keyPress(KeyEvent.VK_H);
-        Thread.sleep(100);
-        robot.keyRelease(KeyEvent.VK_H);
-        robot.keyPress(KeyEvent.VK_T);
-        Thread.sleep(450);
-        robot.keyRelease(KeyEvent.VK_T);
-        robot.keyPress(KeyEvent.VK_X);
-        robot.keyRelease(KeyEvent.VK_X);
+        pressKey(robot, 100, KeyEvent.VK_H);
+        pressKey(robot, 450, KeyEvent.VK_T);
+        pressKey(robot, 0, KeyEvent.VK_X);
 
-        //up
-        robot.keyPress(KeyEvent.VK_T);
-        Thread.sleep(200);
-        robot.keyRelease(KeyEvent.VK_T);
-
-        //right
-        robot.keyPress(KeyEvent.VK_H);
-        Thread.sleep(100);
-        robot.keyRelease(KeyEvent.VK_H);
+        //up and right
+        pressKey(robot, 200, KeyEvent.VK_T);
+        pressKey(robot, 100, KeyEvent.VK_H);
 
         //go to rules
-        robot.keyPress(KeyEvent.VK_X);
-        robot.keyRelease(KeyEvent.VK_X);
+        pressKey(robot, 0, KeyEvent.VK_X);
 
-        Thread.sleep(500);
+        simulateLoadTime(500);
 
         //press right to change to stock
-        robot.keyPress(KeyEvent.VK_H);
-        robot.keyRelease(KeyEvent.VK_H);
+        pressKey(robot, 0, KeyEvent.VK_H);
 
-        Thread.sleep(1000);
-        robot.keyPress(KeyEvent.VK_G);
-        robot.keyRelease(KeyEvent.VK_G);
+        simulateLoadTime(1000);
 
-        robot.keyPress(KeyEvent.VK_F);
-        robot.keyRelease(KeyEvent.VK_F);
+        pressKey(robot, 0, KeyEvent.VK_G);
 
-        robot.keyPress(KeyEvent.VK_F);
-        robot.keyRelease(KeyEvent.VK_F);
 
-        //back out to CSS
-        robot.keyPress(KeyEvent.VK_Z);
-        robot.keyRelease(KeyEvent.VK_Z);
+        pressKey(robot, 0, KeyEvent.VK_F);
+        pressKey(robot, 0, KeyEvent.VK_F);
+        pressKey(robot, 0, KeyEvent.VK_Z);
 
 
         //Turn on a CPU
-        robot.keyPress(KeyEvent.VK_H);
-        Thread.sleep(180);
-        robot.keyRelease(KeyEvent.VK_H);
-        robot.keyPress(KeyEvent.VK_T);
-        Thread.sleep(250);
-        robot.keyRelease(KeyEvent.VK_T);
-        robot.keyPress(KeyEvent.VK_X);
-        robot.keyRelease(KeyEvent.VK_X);
+        pressKey(robot, 180, KeyEvent.VK_H);
+        pressKey(robot, 250, KeyEvent.VK_T);
+        pressKey(robot, 0, KeyEvent.VK_X);
 
-        Thread.sleep(100);
-        robot.keyPress(KeyEvent.VK_ENTER);
-        robot.keyRelease(KeyEvent.VK_ENTER);
+        simulateLoadTime(100);
+
+        for (int i=vsMatches; i<10; i++) {
+            doVSMatch(robot);
+            simulateLoadTime(3000);
+        }
+    }
+
+    private void doVSMatch(Robot robot) throws InterruptedException {
+        pressKey(robot, 100, KeyEvent.VK_ENTER);
 
         //simulate load time
         Thread.sleep(2000);
-
-        //pick Mushroom Kingdom
-        robot.keyPress(KeyEvent.VK_H);
-        Thread.sleep(250);
-        robot.keyRelease(KeyEvent.VK_H);
-
-        robot.keyPress(KeyEvent.VK_T);
-        Thread.sleep(180);
-        robot.keyRelease(KeyEvent.VK_T);
-
-        robot.keyPress(KeyEvent.VK_X);
-        robot.keyRelease(KeyEvent.VK_X);
+        pickMushroomKingdom(robot);
 
         //simulate stage load and ready
         Thread.sleep(5000);
 
-        robot.keyPress(KeyEvent.VK_F);
-        robot.keyRelease(KeyEvent.VK_F);
-        Thread.sleep(50);
-        robot.keyPress(KeyEvent.VK_F);
-        Thread.sleep(2000);
-        robot.keyRelease(KeyEvent.VK_F);
+        pressKey(robot, 0, KeyEvent.VK_F);
+        simulateLoadTime(50);
+        pressKey(robot, 2000, KeyEvent.VK_F);
+
+        simulateLoadTime(8500);
+        pressKey(robot, 100, KeyEvent.VK_ENTER);
+        Thread.sleep(500);
+        pressKey(robot, 100, KeyEvent.VK_ENTER);
+
+        for (int i=0; i<10; i++) {
+            pressKey(robot, 50, KeyEvent.VK_X);
+        }
+
+        vsMatches++;
+        unlockProgress.setText(vsMatches + " VS Matches on Record!");
 
     }
 
-    private void pressLeft(int delay) {
-
+    private void simulateLoadTime(int duration) throws InterruptedException {
+        Thread.sleep(duration);
     }
 
-    private void pressRight(int delay) {
-
+    private void pickMushroomKingdom(Robot robot) throws InterruptedException {
+        pressKey(robot, 250, KeyEvent.VK_H);
+        pressKey(robot, 180, KeyEvent.VK_T);
+        pressKey(robot, 0, KeyEvent.VK_X);
     }
 
-    private void pressUp(int delay) {
-
-    }
-
-    private void pressDown(int delay) {
-
-    }
-
-    private void pressStart(int delay) {
-
-    }
-
-    private void pressA(int delay) {
-
-    }
-
-    private void pressB(int delay) {
-
+    private void pressKey(Robot robot, int duration, int keyCode) throws InterruptedException {
+        robot.keyPress(keyCode);
+        Thread.sleep(duration);
+        robot.keyRelease(keyCode);
     }
 
     @Override
