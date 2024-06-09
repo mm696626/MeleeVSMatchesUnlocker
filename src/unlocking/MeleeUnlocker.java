@@ -1,41 +1,34 @@
-package ui;
+package unlocking;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class MeleeUnlockProgressUI extends JFrame implements KeyListener {
+public class MeleeUnlocker extends JFrame {
 
 
     private int vsMatches;
-    private JLabel unlockProgress;
+    private int vsMatchesTarget;
 
 
-    public MeleeUnlockProgressUI(int vsMatches) throws InterruptedException, AWTException {
+    public MeleeUnlocker(int vsMatches, int vsMatchesTarget) throws InterruptedException, AWTException {
         this.vsMatches = vsMatches;
-
-        setTitle("Unlocking in Progress VS Matches Unlocker");
-        generateUI();
+        this.vsMatchesTarget = vsMatchesTarget;
         unlock();
-    }
-
-    private void generateUI() {
-        unlockProgress = new JLabel(vsMatches + " VS Matches on Record!");
-
-        JPanel mainMenuPanel = new JPanel();
-        GridLayout mainMenuGridLayout = new GridLayout(1, 1);
-        mainMenuPanel.setLayout(mainMenuGridLayout);
-
-        mainMenuPanel.add(unlockProgress);
-        add(mainMenuPanel);
     }
 
     private void unlock() throws AWTException, InterruptedException {
         Robot robot = new Robot();
 
-        JOptionPane.showMessageDialog(this, "Boot Melee and click into your window within 2 seconds of closing this box");
+        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and click into your window within 2 seconds of closing this box");
         Thread.sleep(2000);
+
+        //no point in unlocking if vs match target is too low
+        if (vsMatchesTarget < vsMatches) {
+            JOptionPane.showMessageDialog(this, "Invalid VS match count for unlockables you have!");
+            setVisible(false);
+            return;
+        }
 
         //START
         for (int i=0; i<2; i++) {
@@ -91,10 +84,15 @@ public class MeleeUnlockProgressUI extends JFrame implements KeyListener {
 
         simulateLoadTime(100);
 
-        for (int i=vsMatches; i<10; i++) {
+        for (int i=vsMatches; i<vsMatchesTarget; i++) {
             doVSMatch(robot);
-            simulateLoadTime(3000);
+            simulateLoadTime(4000);
+            pressKey(robot, 100, KeyEvent.VK_ENTER);
         }
+
+        pressKey(robot, 100, KeyEvent.VK_P);
+        JOptionPane.showMessageDialog(this, "Unlock target reached! Pausing game. Press your resume hotkey to get your unlockable!");
+        setVisible(false);
     }
 
     private void doVSMatch(Robot robot) throws InterruptedException {
@@ -115,14 +113,6 @@ public class MeleeUnlockProgressUI extends JFrame implements KeyListener {
         pressKey(robot, 100, KeyEvent.VK_ENTER);
         Thread.sleep(500);
         pressKey(robot, 100, KeyEvent.VK_ENTER);
-
-        for (int i=0; i<10; i++) {
-            pressKey(robot, 50, KeyEvent.VK_X);
-        }
-
-        vsMatches++;
-        unlockProgress.setText(vsMatches + " VS Matches on Record!");
-
     }
 
     private void simulateLoadTime(int duration) throws InterruptedException {
@@ -139,22 +129,5 @@ public class MeleeUnlockProgressUI extends JFrame implements KeyListener {
         robot.keyPress(keyCode);
         Thread.sleep(duration);
         robot.keyRelease(keyCode);
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            System.exit(0);
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
     }
 }

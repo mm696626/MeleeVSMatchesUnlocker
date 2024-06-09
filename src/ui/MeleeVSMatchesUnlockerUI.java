@@ -1,6 +1,9 @@
 package ui;
 
 import constants.MeleeConstants;
+import io.KeyboardSettingSaver;
+import io.UnlockablesSaver;
+import unlocking.MeleeUnlocker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,14 +14,13 @@ import java.util.ArrayList;
 public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
 
-    private JButton startUnlocking, stopUnlocking;
+    private JButton startUnlocking;
     private ArrayList<JLabel> buttonLabels;
     private ArrayList<JLabel> unlockableLabels;
     private ArrayList<JComboBox> buttonAssignments;
     private ArrayList<JCheckBox> earnedUnlockables;
     private int vsMatches;
-    private boolean isUnlocking;
-    private MeleeUnlockProgressUI meleeUnlockProgressUI;
+    private MeleeUnlocker meleeUnlocker;
 
 
     public MeleeVSMatchesUnlockerUI()
@@ -50,16 +52,14 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         startUnlocking.addActionListener(this);
         mainMenuPanel.add(startUnlocking);
 
-        stopUnlocking = new JButton("Stop Unlocking");
-        stopUnlocking.addActionListener(this);
-        mainMenuPanel.add(stopUnlocking);
-
-
         for (int i=0; i<MeleeConstants.GAMECUBE_BUTTONS.length; i++) {
             JLabel jLabel = new JLabel(MeleeConstants.GAMECUBE_BUTTONS[i]);
             buttonLabels.add(jLabel);
             keyboardSettingsPanel.add(buttonLabels.get(i));
             JComboBox jComboBox = new JComboBox(MeleeConstants.KEYBOARD_KEYS);
+            jComboBox.setSelectedIndex(MeleeConstants.DEFAULT_SETTINGS[i]);
+            KeyboardSettingSaver keyboardSettingSaver = new KeyboardSettingSaver();
+            jComboBox.addActionListener(e -> keyboardSettingSaver.saveKeyboardSettingsToFile(buttonAssignments));
             buttonAssignments.add(jComboBox);
             keyboardSettingsPanel.add(jComboBox);
         }
@@ -70,11 +70,14 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             unlockablesPanel.add(unlockableLabels.get(i));
             JCheckBox jCheckBox = new JCheckBox();
             earnedUnlockables.add(jCheckBox);
+
+            UnlockablesSaver unlockablesSaver = new UnlockablesSaver();
+            earnedUnlockables.get(i).addActionListener(e -> unlockablesSaver.saveUnlockablesToFile(earnedUnlockables));
             unlockablesPanel.add(earnedUnlockables.get(i));
         }
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("Toggle Unlocker", mainMenuPanel);
+        tabbedPane.add("Start Unlocker", mainMenuPanel);
         tabbedPane.add("Keyboard Settings", keyboardSettingsPanel);
         tabbedPane.add("Unlockables", unlockablesPanel);
         add(tabbedPane);
@@ -90,35 +93,37 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
                 String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
                 try {
                     vsMatches = Integer.parseInt(response);
-                    isValidResponse = true;
+
+                    if (vsMatches >= 0) {
+                        isValidResponse = true;
+                    }
                 }
                 catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "That was not a valid response! Please try again!");
                 }
             }
 
+            int vsMatchesTarget = determineVsMatchesTarget();
 
-
-            isUnlocking = true;
             try {
-                meleeUnlockProgressUI = new MeleeUnlockProgressUI(vsMatches);
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
 
-            meleeUnlockProgressUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            meleeUnlockProgressUI.pack();
-            meleeUnlockProgressUI.setVisible(true);
+            meleeUnlocker.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            meleeUnlocker.pack();
+            meleeUnlocker.setVisible(true);
+        }
+    }
+
+    private int determineVsMatchesTarget() {
+        for (int i=0; i<earnedUnlockables.size(); i++) {
+            if (!earnedUnlockables.get(i).isSelected()) {
+                return MeleeConstants.VS_MATCHES_REQUIRED[i];
+            }
         }
 
-        if (e.getSource() == stopUnlocking) {
-            if (isUnlocking) {
-                System.exit(0);
-            }
-            else {
-                JOptionPane.showMessageDialog(this,  "Unlocking isn't active!");
-            }
-        }
-
+        return -1;
     }
 }
