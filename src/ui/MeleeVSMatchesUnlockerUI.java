@@ -17,7 +17,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private JButton startUnlocking;
     private ArrayList<JLabel> buttonLabels;
     private ArrayList<JLabel> unlockableLabels;
-    private ArrayList<JComboBox> buttonAssignments;
+    private ArrayList<JComboBox> keyboardButtonAssignments;
     private ArrayList<JCheckBox> earnedUnlockables;
     private int vsMatches;
     private MeleeUnlocker meleeUnlocker;
@@ -32,7 +32,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private void generateUI() {
 
         buttonLabels = new ArrayList<>();
-        buttonAssignments = new ArrayList<>();
+        keyboardButtonAssignments = new ArrayList<>();
         unlockableLabels = new ArrayList<>();
         earnedUnlockables = new ArrayList<>();
 
@@ -59,8 +59,8 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             JComboBox jComboBox = new JComboBox(MeleeConstants.KEYBOARD_KEYS);
             jComboBox.setSelectedIndex(MeleeConstants.DEFAULT_SETTINGS[i]);
             KeyboardSettingSaver keyboardSettingSaver = new KeyboardSettingSaver();
-            jComboBox.addActionListener(e -> keyboardSettingSaver.saveKeyboardSettingsToFile(buttonAssignments));
-            buttonAssignments.add(jComboBox);
+            jComboBox.addActionListener(e -> keyboardSettingSaver.saveKeyboardSettingsToFile(keyboardButtonAssignments));
+            keyboardButtonAssignments.add(jComboBox);
             keyboardSettingsPanel.add(jComboBox);
         }
 
@@ -104,9 +104,16 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             }
 
             int vsMatchesTarget = determineVsMatchesTarget();
+            int[] buttonAssignments = getKeyboardButtonAssignments();
+
+            //no point in unlocking if vs match target is too low
+            if (vsMatchesTarget < vsMatches) {
+                JOptionPane.showMessageDialog(this, "Invalid VS match count for unlockables you have!");
+                return;
+            }
 
             try {
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget);
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -125,5 +132,15 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         }
 
         return -1;
+    }
+
+    private int[] getKeyboardButtonAssignments() {
+        int[] buttonAssignments = new int[MeleeConstants.GAMECUBE_BUTTONS.length];
+
+        for (int i=0; i<keyboardButtonAssignments.size(); i++) {
+            buttonAssignments[i] = MeleeConstants.KEYBOARD_KEY_CODES[keyboardButtonAssignments.get(i).getSelectedIndex()];
+        }
+
+        return buttonAssignments;
     }
 }
