@@ -116,10 +116,18 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             boolean isValidResponse = false;
 
             if (!vsMatchStatsLoaded) {
+
+                JOptionPane.showMessageDialog(this, "Boot Melee up and check the following two things: The number of VS matches total and the number done as Fox");
+
                 while (!isValidResponse) {
                     String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
                     String foxResponse = JOptionPane.showInputDialog(this, "How many VS matches have you done as Fox your save file?");
                     try {
+
+                        if (response == null || foxResponse == null) {
+                            return;
+                        }
+
                         vsMatches = Integer.parseInt(response);
                         foxVsMatches = Integer.parseInt(foxResponse);
 
@@ -135,12 +143,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
             int vsMatchesTarget = determineVsMatchesTarget();
             int[] buttonAssignments = getKeyboardButtonAssignments();
-
-            //no point in unlocking if vs match target is too low
-            if (vsMatchesTarget < vsMatches) {
-                JOptionPane.showMessageDialog(this, "Invalid VS match count for unlockables you have!");
-                return;
-            }
 
             if (!vsMatchStatsLoaded) {
                 VSMatchStatSaver vsMatchStatSaver = new VSMatchStatSaver();
@@ -158,7 +160,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
     private int determineVsMatchesTarget() {
         for (int i=0; i<earnedUnlockables.size(); i++) {
-            if (!earnedUnlockables.get(i).isSelected()) {
+            if (!earnedUnlockables.get(i).isSelected() && MeleeConstants.VS_MATCHES_REQUIRED[i] > vsMatches) {
                 return MeleeConstants.VS_MATCHES_REQUIRED[i];
             }
         }
