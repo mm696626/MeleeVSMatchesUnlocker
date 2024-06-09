@@ -10,23 +10,25 @@ public class MeleeUnlocker extends JFrame {
 
     private int vsMatches;
     private int vsMatchesTarget;
-
     private int[] buttonAssignments;
+    private boolean fastLoading;
+    private boolean skippingResultsScreen;
 
 
-
-    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int[] buttonAssignments) throws InterruptedException, AWTException {
+    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int[] buttonAssignments, boolean fastLoading, boolean skippingResultsScreen) throws InterruptedException, AWTException {
         this.vsMatches = vsMatches;
         this.vsMatchesTarget = vsMatchesTarget;
         this.buttonAssignments = buttonAssignments;
+        this.fastLoading = fastLoading;
+        this.skippingResultsScreen = skippingResultsScreen;
         unlock(buttonAssignments);
     }
 
     private void unlock(int[] buttonAssignments) throws AWTException, InterruptedException {
         Robot robot = new Robot();
 
-        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and click into your window within 2 seconds of closing this box");
-        Thread.sleep(2000);
+        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and click into your window within 5 seconds of closing this box");
+        Thread.sleep(5000);
 
 
         //start game

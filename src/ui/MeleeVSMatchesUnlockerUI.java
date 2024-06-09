@@ -21,6 +21,8 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private ArrayList<JCheckBox> earnedUnlockables;
     private int vsMatches;
     private MeleeUnlocker meleeUnlocker;
+    private JCheckBox fastLoading;
+    private JCheckBox skipResultsScreen;
 
 
     public MeleeVSMatchesUnlockerUI()
@@ -47,6 +49,10 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         JPanel unlockablesPanel = new JPanel();
         GridLayout unlockablesGridLayout = new GridLayout(MeleeConstants.UNLOCKABLES.length,2);
         unlockablesPanel.setLayout(unlockablesGridLayout);
+
+        JPanel dolphinSettingsPanel = new JPanel();
+        GridLayout dolphinSettingsGridLayout = new GridLayout(2,2);
+        dolphinSettingsPanel.setLayout(dolphinSettingsGridLayout);
 
         startUnlocking = new JButton("Start Unlocking");
         startUnlocking.addActionListener(this);
@@ -76,10 +82,22 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             unlockablesPanel.add(earnedUnlockables.get(i));
         }
 
+        JLabel fastLoadingJLabel = new JLabel("Fast Loading Enabled");
+        dolphinSettingsPanel.add(fastLoadingJLabel);
+        JCheckBox fastLoadingEnabled = new JCheckBox();
+        dolphinSettingsPanel.add(fastLoadingEnabled);
+
+        JLabel skipResultsJLabel = new JLabel("Skip Results Gecko Code Enabled");
+        dolphinSettingsPanel.add(skipResultsJLabel);
+        JCheckBox skipResultsEnabled = new JCheckBox();
+        dolphinSettingsPanel.add(skipResultsEnabled);
+
+
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Start Unlocker", mainMenuPanel);
         tabbedPane.add("Keyboard Settings", keyboardSettingsPanel);
         tabbedPane.add("Unlockables", unlockablesPanel);
+        tabbedPane.add("Dolphin Settings", dolphinSettingsPanel);
         add(tabbedPane);
     }
 
@@ -113,7 +131,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             }
 
             try {
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments);
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments, fastLoading.isSelected(), skipResultsScreen.isSelected());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
