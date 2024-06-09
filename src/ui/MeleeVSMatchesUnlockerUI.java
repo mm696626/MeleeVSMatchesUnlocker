@@ -1,7 +1,6 @@
 package ui;
 
 import constants.MeleeConstants;
-import io.DolphinSettingsSaver;
 import io.KeyboardSettingSaver;
 import io.UnlockablesSaver;
 import unlocking.MeleeUnlocker;
@@ -22,10 +21,8 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private JButton startUnlocking;
     private ArrayList<JLabel> buttonLabels;
     private ArrayList<JLabel> unlockableLabels;
-    private ArrayList<JLabel> dolphinSettingLabels;
     private ArrayList<JComboBox> keyboardButtonAssignments;
     private ArrayList<JCheckBox> earnedUnlockables;
-    private ArrayList<JCheckBox> dolphinSettingToggles;
     private int vsMatches;
     private MeleeUnlocker meleeUnlocker;
 
@@ -44,11 +41,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         if (unlockables.exists()) {
             loadUnlockablesSettingsOnStartUp();
         }
-
-        File dolphinSettings = new File("dolphinSettings.txt");
-        if (dolphinSettings.exists()) {
-            loadDolphinSettingsOnStartUp();
-        }
     }
 
     private void generateUI() {
@@ -57,8 +49,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         keyboardButtonAssignments = new ArrayList<>();
         unlockableLabels = new ArrayList<>();
         earnedUnlockables = new ArrayList<>();
-        dolphinSettingLabels = new ArrayList<>();
-        dolphinSettingToggles = new ArrayList<>();
 
         JPanel mainMenuPanel = new JPanel();
         GridLayout mainMenuGridLayout = new GridLayout(1, 2);
@@ -71,10 +61,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         JPanel unlockablesPanel = new JPanel();
         GridLayout unlockablesGridLayout = new GridLayout(MeleeConstants.UNLOCKABLES.length,2);
         unlockablesPanel.setLayout(unlockablesGridLayout);
-
-        JPanel dolphinSettingsPanel = new JPanel();
-        GridLayout dolphinSettingsGridLayout = new GridLayout(2,2);
-        dolphinSettingsPanel.setLayout(dolphinSettingsGridLayout);
 
         startUnlocking = new JButton("Start Unlocking");
         startUnlocking.addActionListener(this);
@@ -106,25 +92,10 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             earnedUnlockables.get(i).addActionListener(e -> unlockablesSaver.saveUnlockablesToFile(earnedUnlockables));
         }
 
-        String[] dolphinSettingsLabelText = {"Fast Loading Enabled", "Skip Results Gecko Code Enabled"};
-        for (int i=0; i<2; i++) {
-            JLabel jLabel = new JLabel(dolphinSettingsLabelText[i]);
-            dolphinSettingLabels.add(jLabel);
-            dolphinSettingsPanel.add(dolphinSettingLabels.get(i));
-
-            JCheckBox jCheckBox = new JCheckBox();
-            dolphinSettingToggles.add(jCheckBox);
-            DolphinSettingsSaver dolphinSettingsSaver = new DolphinSettingsSaver();
-            dolphinSettingToggles.get(i).addActionListener(e -> dolphinSettingsSaver.saveDolphinSettingsToFile(dolphinSettingLabels, dolphinSettingToggles));
-            dolphinSettingsPanel.add(dolphinSettingToggles.get(i));
-
-        }
-
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.add("Start Unlocker", mainMenuPanel);
         tabbedPane.add("Keyboard Settings", keyboardSettingsPanel);
         tabbedPane.add("Unlockables", unlockablesPanel);
-        tabbedPane.add("Dolphin Settings", dolphinSettingsPanel);
         add(tabbedPane);
     }
 
@@ -158,7 +129,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             }
 
             try {
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments, dolphinSettingToggles.get(0).isSelected(), dolphinSettingToggles.get(1).isSelected());
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, buttonAssignments);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -232,26 +203,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             String settingValue = line.split("=")[1];
             boolean isSelected = Boolean.parseBoolean(settingValue);
             earnedUnlockables.get(index).setSelected(isSelected);
-            index++;
-        }
-
-        inputStream.close();
-    }
-
-    private void loadDolphinSettingsOnStartUp() {
-        Scanner inputStream = null;
-        try {
-            inputStream = new Scanner(new FileInputStream("dolphinSettings.txt"));
-        } catch (FileNotFoundException e) {
-            return;
-        }
-
-        int index = 0;
-        while (inputStream.hasNextLine()) {
-            String line = inputStream.nextLine();
-            String settingValue = line.split("=")[1];
-            boolean isSelected = Boolean.parseBoolean(settingValue);
-            dolphinSettingToggles.get(index).setSelected(isSelected);
             index++;
         }
 

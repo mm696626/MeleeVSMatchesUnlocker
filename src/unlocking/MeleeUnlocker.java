@@ -11,16 +11,12 @@ public class MeleeUnlocker extends JFrame {
     private int vsMatches;
     private int vsMatchesTarget;
     private int[] buttonAssignments;
-    private boolean fastLoading;
-    private boolean skippingResultsScreen;
 
 
-    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int[] buttonAssignments, boolean fastLoading, boolean skippingResultsScreen) throws InterruptedException, AWTException {
+    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int[] buttonAssignments) throws InterruptedException, AWTException {
         this.vsMatches = vsMatches;
         this.vsMatchesTarget = vsMatchesTarget;
         this.buttonAssignments = buttonAssignments;
-        this.fastLoading = fastLoading;
-        this.skippingResultsScreen = skippingResultsScreen;
         unlock(buttonAssignments);
     }
 
@@ -52,8 +48,8 @@ public class MeleeUnlocker extends JFrame {
         simulateLoadTime(5000);
 
         //Pick Fox
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.UP_ON_STICK]);
-        pressKey(robot, 450, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+        pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+        pressKey(robot, 450, buttonAssignments[ButtonConstants.UP_ON_STICK]);
         pressKey(robot, 0, buttonAssignments[ButtonConstants.A]);
 
         //go to rules
