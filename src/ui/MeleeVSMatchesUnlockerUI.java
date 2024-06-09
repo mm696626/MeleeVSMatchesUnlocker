@@ -160,7 +160,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
     private int determineVsMatchesTarget() {
         for (int i=0; i<earnedUnlockables.size(); i++) {
-            if (!earnedUnlockables.get(i).isSelected() && MeleeConstants.VS_MATCHES_REQUIRED[i] > vsMatches) {
+            if (!earnedUnlockables.get(i).isSelected() && MeleeConstants.VS_MATCHES_REQUIRED[i] >= vsMatches) {
                 return MeleeConstants.VS_MATCHES_REQUIRED[i];
             }
         }
