@@ -29,7 +29,7 @@ public class MeleeUnlocker extends JFrame {
         Thread.sleep(2000);
 
 
-        //START
+        //start game
         for (int i=0; i<2; i++) {
             pressKey(robot, 1000, buttonAssignments[ButtonConstants.START]);
         }
@@ -54,11 +54,9 @@ public class MeleeUnlocker extends JFrame {
         pressKey(robot, 450, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
         pressKey(robot, 0, buttonAssignments[ButtonConstants.A]);
 
-        //up and right
+        //go to rules
         pressKey(robot, 200, buttonAssignments[ButtonConstants.UP_ON_STICK]);
         pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
-
-        //go to rules
         pressKey(robot, 0, buttonAssignments[ButtonConstants.A]);
 
         simulateLoadTime(500);
@@ -67,9 +65,7 @@ public class MeleeUnlocker extends JFrame {
         pressKey(robot, 0, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
 
         simulateLoadTime(1000);
-
         pressKey(robot, 0, buttonAssignments[ButtonConstants.DOWN_ON_STICK]);
-
         pressKey(robot, 0, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
         pressKey(robot, 0, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
         pressKey(robot, 0, buttonAssignments[ButtonConstants.B]);
@@ -79,15 +75,18 @@ public class MeleeUnlocker extends JFrame {
         pressKey(robot, 180, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
         pressKey(robot, 250, buttonAssignments[ButtonConstants.UP_ON_STICK]);
         pressKey(robot, 0, buttonAssignments[ButtonConstants.A]);
-
         simulateLoadTime(100);
 
+        //start loop of VS matches
         for (int i=vsMatches; i<vsMatchesTarget; i++) {
             doVSMatch(robot);
             simulateLoadTime(4000);
+
+            //press start to go to stage select after match
             pressKey(robot, 100, buttonAssignments[ButtonConstants.START]);
         }
 
+        //pause after done
         pressKey(robot, 100, buttonAssignments[ButtonConstants.PAUSE_HOTKEY]);
         JOptionPane.showMessageDialog(this, "Unlock target reached! Pausing game. Press your resume hotkey to get your unlockable!");
         setVisible(false);
@@ -103,10 +102,12 @@ public class MeleeUnlocker extends JFrame {
         //simulate stage load and ready
         Thread.sleep(5000);
 
+        //dash to the left to SD
         pressKey(robot, 0, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
         simulateLoadTime(50);
         pressKey(robot, 2000, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
 
+        //wait for results screen to end and mash Start
         simulateLoadTime(8500);
         pressKey(robot, 100, buttonAssignments[ButtonConstants.START]);
         Thread.sleep(500);
