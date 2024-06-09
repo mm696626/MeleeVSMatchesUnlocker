@@ -23,17 +23,8 @@ public class MeleeUnlocker extends JFrame {
     private void unlock(int[] buttonAssignments) throws AWTException, InterruptedException {
         Robot robot = new Robot();
 
-        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and click into your window within 5 seconds of closing this box");
-        Thread.sleep(5000);
-
-
-        //start game
-        for (int i=0; i<2; i++) {
-            pressKey(robot, 1000, buttonAssignments[ButtonConstants.START]);
-        }
-
-        //simulate load time
-        simulateLoadTime(3000);
+        JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and click into your window within 2 seconds of closing this box");
+        Thread.sleep(2000);
 
         //press down to go to Melee mode
         pressKey(robot, 100, buttonAssignments[ButtonConstants.DOWN_ON_STICK]);
