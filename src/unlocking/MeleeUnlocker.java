@@ -12,13 +12,15 @@ public class MeleeUnlocker {
     private int vsMatchesTarget;
     private int foxVsMatches;
     private int[] buttonAssignments;
+    private boolean isFirstVSMatch;
 
 
-    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int foxVsMatches, int[] buttonAssignments) throws InterruptedException, AWTException {
+    public MeleeUnlocker(int vsMatches, int vsMatchesTarget, int foxVsMatches, int[] buttonAssignments, boolean isFirstVSMatch) throws InterruptedException, AWTException {
         this.vsMatches = vsMatches;
         this.vsMatchesTarget = vsMatchesTarget;
         this.foxVsMatches = foxVsMatches;
         this.buttonAssignments = buttonAssignments;
+        this.isFirstVSMatch = isFirstVSMatch;
         unlock(buttonAssignments);
     }
 
@@ -40,33 +42,36 @@ public class MeleeUnlocker {
         //simulate loading time
         simulateWaitOrLoadTime(5000);
 
-        //Pick Fox
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
-        pressKey(robot, 450, buttonAssignments[ButtonConstants.UP_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
+        //Melee will automatically put the rules and character cursors where they were if a VS match is done on a boot of Melee
+        if (isFirstVSMatch) {
+            //Pick Fox
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+            pressKey(robot, 450, buttonAssignments[ButtonConstants.UP_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
 
-        //go to rules
-        pressKey(robot, 200, buttonAssignments[ButtonConstants.UP_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
+            //go to rules
+            pressKey(robot, 200, buttonAssignments[ButtonConstants.UP_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
 
-        simulateWaitOrLoadTime(500);
+            simulateWaitOrLoadTime(500);
 
-        //press right to change to stock
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+            //press right to change to stock
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
 
-        simulateWaitOrLoadTime(1000);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.DOWN_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
-        simulateWaitOrLoadTime(100);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.B]);
+            simulateWaitOrLoadTime(1000);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.DOWN_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
+            simulateWaitOrLoadTime(100);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.B]);
 
-        //Turn on a CPU
-        pressKey(robot, 180, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
-        pressKey(robot, 250, buttonAssignments[ButtonConstants.UP_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
-        simulateWaitOrLoadTime(200);
+            //Turn on a CPU
+            pressKey(robot, 180, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+            pressKey(robot, 250, buttonAssignments[ButtonConstants.UP_ON_STICK]);
+            pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
+            simulateWaitOrLoadTime(200);
+        }
 
         //start loop of VS matches
         for (int i=vsMatches; i<vsMatchesTarget; i++) {

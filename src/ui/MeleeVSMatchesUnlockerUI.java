@@ -32,6 +32,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
     private MeleeUnlocker meleeUnlocker;
     private static Thread meleeUnlockerThread = new Thread();
     private boolean vsMatchStatsLoaded = false;
+    private boolean isFirstVSMatch = true;
 
 
     public MeleeVSMatchesUnlockerUI()
@@ -150,8 +151,16 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             }
 
             try {
+                int isFirstVSMatchDialogResult = JOptionPane.showConfirmDialog(this, "Is this your first time doing a VS match on this boot of Melee?");
+                if (isFirstVSMatchDialogResult == JOptionPane.YES_OPTION){
+                    isFirstVSMatch = true;
+                }
+                else {
+                    isFirstVSMatch = false;
+                }
+
                 JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and go to the main menu (hover over the first option in the menu) and click into your window within 2 seconds after pressing OK on this box");
-                runUnlockerThread(vsMatchesTarget, buttonAssignments);
+                runUnlockerThread(vsMatchesTarget, buttonAssignments, isFirstVSMatch);
                 unlockerStatusTextField.setText("Yes");
                 checkOffAllUnlockableBoxesThatAreAtOrBeforeTarget(vsMatchesTarget);
                 UnlockablesSaver unlockablesSaver = new UnlockablesSaver();
@@ -200,10 +209,10 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         return true;
     }
 
-    private void runUnlockerThread(int vsMatchesTarget, int[] buttonAssignments) {
+    private void runUnlockerThread(int vsMatchesTarget, int[] buttonAssignments, boolean isFirstVSMatch) {
         meleeUnlockerThread = new Thread(() -> {
             try {
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, foxVsMatches, buttonAssignments);
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, foxVsMatches, buttonAssignments, isFirstVSMatch);
                 unlockerStatusTextField.setText("No");
             } catch (InterruptedException ex) {
                 //this is an intentional exception since the thread is being interrupted on stop
