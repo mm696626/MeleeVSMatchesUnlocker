@@ -153,6 +153,9 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and go to the main menu (hover over the first option in the menu) and click into your window within 2 seconds after pressing OK on this box");
                 runUnlockerThread(vsMatchesTarget, buttonAssignments);
                 unlockerStatusTextField.setText("Yes");
+                checkOffAllUnlockableBoxesThatAreAtOrBeforeTarget(vsMatchesTarget);
+                UnlockablesSaver unlockablesSaver = new UnlockablesSaver();
+                unlockablesSaver.saveUnlockablesToFile(earnedUnlockables);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -163,6 +166,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
             if (editVSMatchStats()) {
                 VSMatchStatSaver vsMatchStatSaver = new VSMatchStatSaver();
                 vsMatchStatSaver.saveVSMatchStatsToFile(vsMatches, foxVsMatches);
+                vsMatchStatsLoaded = true;
             }
         }
     }
@@ -220,6 +224,14 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         }
 
         return -1;
+    }
+
+    private void checkOffAllUnlockableBoxesThatAreAtOrBeforeTarget(int vsMatchesTarget) {
+        for (int i=0; i<earnedUnlockables.size(); i++) {
+            if (!earnedUnlockables.get(i).isSelected() && vsMatchesTarget >= MeleeConstants.VS_MATCHES_REQUIRED[i]) {
+                earnedUnlockables.get(i).setSelected(true);
+            }
+        }
     }
 
     private int[] getKeyboardButtonAssignments() {
