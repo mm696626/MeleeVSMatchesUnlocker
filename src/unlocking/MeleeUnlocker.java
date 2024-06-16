@@ -86,8 +86,6 @@ public class MeleeUnlocker {
 
         //pause after done
         pressKey(robot, 200, buttonAssignments[ButtonConstants.PAUSE_HOTKEY]);
-        simulateWaitOrLoadTime(1000);
-        System.exit(0); //close program after finished!
     }
 
     private void doVSMatch(Robot robot) throws InterruptedException {
@@ -95,7 +93,14 @@ public class MeleeUnlocker {
 
         //simulate load time
         simulateWaitOrLoadTime(2000);
-        pickMushroomKingdom(robot);
+
+        //pick Mushroom Kingdom
+        pressKey(robot, 350, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
+        simulateWaitOrLoadTime(100);
+        pressKey(robot, 180, buttonAssignments[ButtonConstants.UP_ON_STICK]);
+        simulateWaitOrLoadTime(100);
+        pressKey(robot, 50, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
+        pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
 
         //simulate stage load and ready
         simulateWaitOrLoadTime(5000);
@@ -118,7 +123,7 @@ public class MeleeUnlocker {
         if (foxVsMatches % 100 == 0 && foxVsMatches <= 300) {
             simulateWaitOrLoadTime(1000);
             pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
-            simulateWaitOrLoadTime(5000);
+            simulateWaitOrLoadTime(5500);
         }
     }
 
@@ -126,14 +131,6 @@ public class MeleeUnlocker {
         Thread.sleep(duration);
     }
 
-    private void pickMushroomKingdom(Robot robot) throws InterruptedException {
-        pressKey(robot, 350, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
-        simulateWaitOrLoadTime(100);
-        pressKey(robot, 180, buttonAssignments[ButtonConstants.UP_ON_STICK]);
-        simulateWaitOrLoadTime(100);
-        pressKey(robot, 50, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
-        pressKey(robot, 100, buttonAssignments[ButtonConstants.A]);
-    }
 
     private void pressKey(Robot robot, int duration, int keyCode) throws InterruptedException {
         robot.keyPress(keyCode);

@@ -20,13 +20,17 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
 
     private JButton startUnlocking;
+    private JButton editVSMatchStats;
     private ArrayList<JLabel> buttonLabels;
     private ArrayList<JLabel> unlockableLabels;
+    private JLabel unlockerStatusLabel;
+    private JTextField unlockerStatusTextField;
     private ArrayList<JComboBox> keyboardButtonAssignments;
     private ArrayList<JCheckBox> earnedUnlockables;
     private int vsMatches;
     private int foxVsMatches;
     private MeleeUnlocker meleeUnlocker;
+    private static Thread meleeUnlockerThread = new Thread();
     private boolean vsMatchStatsLoaded = false;
 
 
@@ -60,7 +64,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         earnedUnlockables = new ArrayList<>();
 
         JPanel mainMenuPanel = new JPanel();
-        GridLayout mainMenuGridLayout = new GridLayout(1, 2);
+        GridLayout mainMenuGridLayout = new GridLayout(2, 2);
         mainMenuPanel.setLayout(mainMenuGridLayout);
 
         JPanel keyboardSettingsPanel = new JPanel();
@@ -71,9 +75,21 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         GridLayout unlockablesGridLayout = new GridLayout(MeleeConstants.UNLOCKABLES.length,2);
         unlockablesPanel.setLayout(unlockablesGridLayout);
 
-        startUnlocking = new JButton("Start Unlocking");
+        startUnlocking = new JButton("Start/Stop Unlocking");
         startUnlocking.addActionListener(this);
         mainMenuPanel.add(startUnlocking);
+
+        editVSMatchStats = new JButton("Edit VS Match Stats");
+        editVSMatchStats.addActionListener(this);
+        mainMenuPanel.add(editVSMatchStats);
+
+        unlockerStatusLabel = new JLabel("Unlocking Active");
+        mainMenuPanel.add(unlockerStatusLabel);
+
+        unlockerStatusTextField = new JTextField();
+        unlockerStatusTextField.setText("No");
+        unlockerStatusTextField.setEditable(false);
+        mainMenuPanel.add(unlockerStatusTextField);
 
         for (int i=0; i<MeleeConstants.GAMECUBE_BUTTONS.length; i++) {
             JLabel jLabel = new JLabel(MeleeConstants.GAMECUBE_BUTTONS[i]);
@@ -102,7 +118,7 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
         }
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.add("Start Unlocker", mainMenuPanel);
+        tabbedPane.add("Main Menu", mainMenuPanel);
         tabbedPane.add("Keyboard Settings", keyboardSettingsPanel);
         tabbedPane.add("Unlockables", unlockablesPanel);
         add(tabbedPane);
@@ -113,31 +129,16 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
         if (e.getSource() == startUnlocking) {
 
-            boolean isValidResponse = false;
+            if (meleeUnlockerThread.isAlive()) {
+                meleeUnlockerThread.interrupt();
+                unlockerStatusTextField.setText("No");
+                return;
+            }
+
 
             if (!vsMatchStatsLoaded) {
-
-                JOptionPane.showMessageDialog(this, "Boot Melee up and check the following two things: The number of VS matches total and the number done as Fox");
-
-                while (!isValidResponse) {
-                    String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
-                    String foxResponse = JOptionPane.showInputDialog(this, "How many VS matches have you done as Fox your save file?");
-                    try {
-
-                        if (response == null || foxResponse == null) {
-                            return;
-                        }
-
-                        vsMatches = Integer.parseInt(response);
-                        foxVsMatches = Integer.parseInt(foxResponse);
-
-                        if (vsMatches >= 0 && foxVsMatches >= 0) {
-                            isValidResponse = true;
-                        }
-                    }
-                    catch (Exception ex) {
-                        JOptionPane.showMessageDialog(this, "That was not a valid response! Please try again!");
-                    }
+                if (!editVSMatchStats()) {
+                    return;
                 }
             }
 
@@ -151,11 +152,65 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
 
             try {
                 JOptionPane.showMessageDialog(this, "Found unlockable at " + vsMatchesTarget + " VS matches!" + " Boot Melee and go to the main menu (hover over the first option in the menu) and click into your window within 2 seconds after pressing OK on this box");
-                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, foxVsMatches, buttonAssignments);
+                runUnlockerThread(vsMatchesTarget, buttonAssignments);
+                unlockerStatusTextField.setText("Yes");
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
+
+        if (e.getSource() == editVSMatchStats) {
+
+            if (editVSMatchStats()) {
+                VSMatchStatSaver vsMatchStatSaver = new VSMatchStatSaver();
+                vsMatchStatSaver.saveVSMatchStatsToFile(vsMatches, foxVsMatches);
+            }
+        }
+    }
+
+    private boolean editVSMatchStats() {
+        JOptionPane.showMessageDialog(this, "Boot Melee up and check the following two things: The number of VS matches total and the number done as Fox");
+
+        boolean isValidResponse = false;
+
+        while (!isValidResponse) {
+            String response = JOptionPane.showInputDialog(this, "How many VS matches have you done on your save file?");
+            String foxResponse = JOptionPane.showInputDialog(this, "How many VS matches have you done as Fox your save file?");
+            try {
+
+                if (response == null || foxResponse == null || response.isEmpty() || foxResponse.isEmpty()) {
+                    return false;
+                }
+
+                vsMatches = Integer.parseInt(response);
+                foxVsMatches = Integer.parseInt(foxResponse);
+
+                if (vsMatches >= 0 && foxVsMatches >= 0) {
+                    isValidResponse = true;
+                }
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "That was not a valid response! Please try again!");
+            }
+        }
+
+        return true;
+    }
+
+    private void runUnlockerThread(int vsMatchesTarget, int[] buttonAssignments) {
+        meleeUnlockerThread = new Thread(() -> {
+            try {
+                meleeUnlocker = new MeleeUnlocker(vsMatches, vsMatchesTarget, foxVsMatches, buttonAssignments);
+                unlockerStatusTextField.setText("No");
+            } catch (InterruptedException ex) {
+                //this is an intentional exception since the thread is being interrupted on stop
+                System.out.println("Thread Stopped");
+            } catch (AWTException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        meleeUnlockerThread.start();
     }
 
     private int determineVsMatchesTarget() {
