@@ -135,7 +135,6 @@ public class MeleeVSMatchesUnlockerUI extends JFrame implements ActionListener {
                 return;
             }
 
-
             if (!vsMatchStatsLoaded) {
                 if (!editVSMatchStats()) {
                     return;

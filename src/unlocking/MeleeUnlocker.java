@@ -62,7 +62,6 @@ public class MeleeUnlocker {
         pressKey(robot, 100, buttonAssignments[ButtonConstants.LEFT_ON_STICK]);
         pressKey(robot, 100, buttonAssignments[ButtonConstants.B]);
 
-
         //Turn on a CPU
         pressKey(robot, 180, buttonAssignments[ButtonConstants.RIGHT_ON_STICK]);
         pressKey(robot, 250, buttonAssignments[ButtonConstants.UP_ON_STICK]);
@@ -130,7 +129,6 @@ public class MeleeUnlocker {
     private void simulateWaitOrLoadTime(int duration) throws InterruptedException {
         Thread.sleep(duration);
     }
-
 
     private void pressKey(Robot robot, int duration, int keyCode) throws InterruptedException {
         robot.keyPress(keyCode);
